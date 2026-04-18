@@ -2,6 +2,6 @@
   "scripts": {
     "setup:run": "cd data-provisioning-tool && npx rimraf node_modules package-lock.json && npm install && cd ../db-testing-framework && npx rimraf node_modules package-lock.json && npm install && npx playwright install && cd ..",
     
-    "test:full": "cd data-provisioning-tool && NODE_OPTIONS='--loader ts-node/esm --no-warnings' npx ts-node src/init-db.ts && NODE_OPTIONS='--loader ts-node/esm --no-warnings' npx ts-node src/seeder.ts && cd ../db-testing-framework && npx playwright test"
+    "test:full": "cd data-provisioning-tool && npx ts-node --esm --specifier-resolution=node src/init-db.ts && npx ts-node --esm --specifier-resolution=node src/seeder.ts && cd ../db-testing-framework && npx playwright test"
   }
 }

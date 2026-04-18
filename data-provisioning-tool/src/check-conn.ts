@@ -7,6 +7,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+if (!process.env.DATABASE_URL) {
+    throw new Error("DATABASE_URL is not defined in environment variables!");
+}
 
 const client = new Client({
   connectionString: process.env.DATABASE_URL,

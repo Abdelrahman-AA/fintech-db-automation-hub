@@ -6,7 +6,10 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const envPath = resolve(__dirname, '../../.env'); 
+const envPath = resolve(__dirname, '../../.env');
+if (!process.env.DATABASE_URL) {
+  throw new Error("DATABASE_URL is not defined in environment variables!");
+}
 dotenv.config({ path: envPath });
 
 const client = new Client({
@@ -19,7 +22,7 @@ const client = new Client({
 async function initializeSandbox() {
   try {
     await client.connect();
-    
+
     const schemaSQL = `
       DROP TABLE IF EXISTS audit_logs;
       DROP TABLE IF EXISTS transactions;

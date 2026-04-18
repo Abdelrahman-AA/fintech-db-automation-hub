@@ -4,6 +4,9 @@ import * as dotenv from 'dotenv';
 import { resolve } from 'path';
 
 dotenv.config({ path: resolve(process.cwd(), '../.env') });
+if (!process.env.DATABASE_URL) {
+  throw new Error("DATABASE_URL is not defined in environment variables!");
+}
 
 const client = new Client({
   connectionString: process.env.DATABASE_URL,
@@ -44,7 +47,7 @@ async function seedDatabase() {
       const firstName = faker.person.firstName();
       const lastName = faker.person.lastName();
       const balance = parseFloat(faker.finance.amount({ min: 100, max: 8000 }));
-      
+
       const status = faker.helpers.arrayElement(['ACTIVE', 'INACTIVE']);
 
       const userRes = await client.query(
@@ -56,14 +59,14 @@ async function seedDatabase() {
           status
         ]
       );
-      
+
       const userId = userRes.rows[0].user_id;
 
       const walletRes = await client.query(
         'INSERT INTO wallets (user_id, balance, currency) VALUES ($1, $2, $3) RETURNING wallet_id',
         [userId, balance, 'EGP']
       );
-      
+
       walletIds.push(walletRes.rows[0].wallet_id);
     }
 
@@ -81,8 +84,8 @@ async function seedDatabase() {
           faker.finance.amount({ min: 10, max: 1000 }),
           'TRANSFER',
           'SUCCESS',
-          JSON.stringify({ 
-            ip: faker.internet.ip(), 
+          JSON.stringify({
+            ip: faker.internet.ip(),
             device: faker.helpers.arrayElement(['iOS', 'Android', 'Web', 'Desktop']),
             location: faker.location.city()
           })
