@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [ main ]
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
@@ -21,7 +26,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          # cache: 'npm'
 
       - name: Install Root Dependencies
         run: npm install
@@ -36,10 +40,16 @@ jobs:
       - name: Execute Full Automation Suite
         run: npm run test:full
 
-      - name: Upload Test Results
+      - name: Setup Pages
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/configure-pages@v4
+
+      - name: Upload Pages Artifact
+        if: always()
+        uses: actions/upload-pages-artifact@v3
         with:
-          name: playwright-report
           path: db-testing-framework/playwright-report/
-          retention-days: 30
+
+      - name: Deploy to GitHub Pages
+        if: always()
+        uses: actions/deploy-pages@v4
