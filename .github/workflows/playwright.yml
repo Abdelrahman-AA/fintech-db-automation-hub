@@ -1,0 +1,45 @@
+name: Fintech DB Automation CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    if: github.actor == 'Abdelrahman-AA'
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Root Dependencies
+        run: npm install
+
+      - name: Project Setup (Clean & Install)
+        run: npm run setup:run
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+        working-directory: ./db-testing-framework
+
+      - name: Execute Full Automation Suite
+        run: npm run test:full
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: db-testing-framework/playwright-report/
+          retention-days: 30
