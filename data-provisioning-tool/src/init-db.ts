@@ -1,22 +1,26 @@
 import { Client } from 'pg';
 import * as dotenv from 'dotenv';
-import { resolve, dirname } from 'path';
+import path, { dirname } from 'path';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const envPath = resolve(__dirname, '../../.env');
-if (!process.env.DATABASE_URL) {
-  throw new Error("DATABASE_URL is not defined in environment variables!");
+let dbUrl = process.env.DATABASE_URL;
+
+if (!dbUrl) {
+  dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+  dbUrl = process.env.DATABASE_URL;
 }
-dotenv.config({ path: envPath });
+
+console.log("Checking Connection String...");
+if (!dbUrl || dbUrl.includes('base')) {
+  throw new Error("CRITICAL: DATABASE_URL is missing or invalid (found 'base'). Check GitHub Secrets!");
+}
 
 const client = new Client({
-  connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false
-  }
+  connectionString: dbUrl,
+  ssl: { rejectUnauthorized: false }
 });
 
 async function initializeSandbox() {

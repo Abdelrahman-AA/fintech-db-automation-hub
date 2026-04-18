@@ -1,15 +1,26 @@
 import { Client } from 'pg';
 import { faker } from '@faker-js/faker';
 import * as dotenv from 'dotenv';
-import { resolve } from 'path';
+import path, { dirname } from 'path';
+import { fileURLToPath } from 'url';
 
-dotenv.config({ path: resolve(process.cwd(), '../.env') });
-if (!process.env.DATABASE_URL) {
-  throw new Error("DATABASE_URL is not defined in environment variables!");
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+let dbUrl = process.env.DATABASE_URL;
+
+if (!dbUrl) {
+  dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+  dbUrl = process.env.DATABASE_URL;
+}
+
+console.log("Checking Connection String for Seeding...");
+if (!dbUrl || dbUrl.includes('base')) {
+  throw new Error("CRITICAL: DATABASE_URL is missing or invalid in Seeder!");
 }
 
 const client = new Client({
-  connectionString: process.env.DATABASE_URL,
+  connectionString: dbUrl,
   ssl: { rejectUnauthorized: false }
 });
 
